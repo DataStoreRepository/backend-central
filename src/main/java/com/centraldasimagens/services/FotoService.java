@@ -3,10 +3,12 @@ package com.centraldasimagens.services;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.centraldasimagens.dto.FotoRequestDTO;
 import com.centraldasimagens.dto.FotoRespostaDTO;
@@ -40,11 +42,17 @@ public class FotoService {
         photoRepository.save(photo);
     }
 
-    public List<FotoRespostaDTO> getAll() {
-        List<FotoRespostaDTO> listaFotos = photoRepository.findAll().stream().map(FotoRespostaDTO::new).toList();
-
-        return listaFotos;
+   public List<FotoRespostaDTO> getAll() {
+    List<FotoRespostaDTO> listaFotos = photoRepository.findAll().stream()
+            .map(FotoRespostaDTO::new)
+            .toList();
+    
+    if (listaFotos.isEmpty()) {
+        throw new ResponseStatusException(HttpStatus.NO_CONTENT, "Nenhuma foto encontrada.");
     }
+
+    return listaFotos;
+}
 
     public ResponseEntity<FotoRespostaDTO> getById(@PathVariable Long id) {
         Optional<Foto> fotoOptional = photoRepository.findById(id);
